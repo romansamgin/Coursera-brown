@@ -118,15 +118,12 @@ vector<Json::Node> DataBase::Response(vector<Json::Node> requests) {
                 double length_roads = 0;
                 double length_georg = 0;
                 for (size_t i = 1; i < bus_path_[bus_name].size(); ++i) {
-                    //ÃÅÎÃÐÀÔÈ×ÅÑÊÈÅ
                     length_georg += Distanse(stops_.at(bus_path_[bus_name][i - 1]), stops_.at(bus_path_[bus_name][i]));
                     const auto lhs = stops_.at(bus_path_[bus_name][i - 1]);
                     const auto rhs = stops_.at(bus_path_[bus_name][i]);
-                    //length_georg += Distanse2(lhs, rhs);
 
                     string stop1 = bus_path_[bus_name][i - 1];
                     string stop2 = bus_path_[bus_name][i];
-                    //Â ÌÅÒÐÀÕ
                     if (distances_.count({ stop1, stop2 }) == 0) {
                         length_roads += distances_.at({ stop2, stop1 });
                     }
