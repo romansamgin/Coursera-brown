@@ -8,6 +8,7 @@
 #include "router.h"
 #include "geometry.h"
 
+
 class DataBase {
 private:
     enum class QueryType {
@@ -46,7 +47,7 @@ private:
     double bus_velocity_;
     Graph::DirectedWeightedGraph<double> graph;
 
-    //first - îæèäàíèå, second - íà÷àëî äâèæåíèÿ, ðåáðî first->second èìååò âåñ bus_wait_time
+    //first - ожидание, second - начало движения, ребро first->second имеет вес bus_wait_time
     std::unordered_map<std::string, std::pair<Graph::VertexId, Graph::VertexId>> stop_to_id_;
     std::unordered_map<Graph::VertexId, std::string> id_to_stop_;
 
