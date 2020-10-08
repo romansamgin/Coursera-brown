@@ -52,7 +52,7 @@ private:
 
 public:
     DataBase() = default;
-    DataBase(const Json::Node base_requests, const Json::Dict& routing_settings);
+    DataBase(const Json::Node& base_requests, const Json::Dict& routing_settings);
 
-    std::vector<Json::Node> Response(std::vector<Json::Node> requests);
+    std::vector<Json::Node> Response(const std::vector<Json::Node>& requests);
 };
