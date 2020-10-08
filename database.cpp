@@ -2,7 +2,7 @@
 
 using namespace std;
 
-DataBase::DataBase(const Json::Node base_requests, const Json::Dict& routing_settings) {
+DataBase::DataBase(const Json::Node& base_requests, const Json::Dict& routing_settings) {
     bus_wait_time_ = routing_settings.at("bus_wait_time").AsInt();
     bus_velocity_ = routing_settings.at("bus_velocity").AsDouble();
     for (const Json::Node& node : base_requests.AsArray()) {
@@ -79,7 +79,7 @@ DataBase::DataBase(const Json::Node base_requests, const Json::Dict& routing_set
     }
 }
 
-vector<Json::Node> DataBase::Response(vector<Json::Node> requests) {
+vector<Json::Node> DataBase::Response(const vector<Json::Node>& requests) {
     vector<Json::Node> result_nodes;
     result_nodes.reserve(requests.size());
     Graph::Router<double> router(graph);
