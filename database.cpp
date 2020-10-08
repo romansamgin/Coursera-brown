@@ -13,9 +13,9 @@ DataBase::DataBase(const Json::Node& base_requests, const Json::Dict& routing_se
             double latitude = node.AsMap().at("latitude").AsDouble();
             double longitude = node.AsMap().at("longitude").AsDouble();
             stops_[stop_name] = Geometry::Coordinates(latitude, longitude);
-            for (const auto& pair : node.AsMap().at("road_distances").AsMap()) {
-                int distance = pair.second.AsInt();
-                string stop_name_rhs = pair.first;
+            for (const auto& [to_stop, length] : node.AsMap().at("road_distances").AsMap()) {
+                int distance = length.AsInt();
+                string stop_name_rhs = to_stop;
                 distances_[{stop_name, stop_name_rhs}] = distance;
                 if (distances_.count({ stop_name_rhs, stop_name }) == 0) {
                     distances_[{stop_name_rhs, stop_name}] = distance;
@@ -26,17 +26,18 @@ DataBase::DataBase(const Json::Node& base_requests, const Json::Dict& routing_se
         case QueryType::BUS: {
             string bus_name = node.AsMap().at("name").AsString();
             is_roundtrip_[bus_name] = true;
+            auto& stops_node = node.AsMap().at("stops").AsArray();
             vector<string> stops;
-            for (const auto stop_name : node.AsMap().at("stops").AsArray()) {
+            stops.reserve(stops_node.size());
+            for (const auto& stop_name : stops_node) {
                 stop_buses_[stop_name.AsString()].insert(bus_name);
-                stops.push_back(stop_name.AsString());
+                stops.emplace_back(stop_name.AsString());
             }
             if (!node.AsMap().at("is_roundtrip").AsBool()) {
                 is_roundtrip_[bus_name] = false;
-                for (size_t i = stops.size() - 2; i > 0; --i) {
+                for (int i = static_cast<int>(stops.size() - 2); i >= 0; --i) {
                     stops.push_back(stops[i]);
                 }
-                stops.push_back(stops.front());
             }
             bus_path_[bus_name] = move(stops);
             break;
@@ -58,7 +59,7 @@ DataBase::DataBase(const Json::Node& base_requests, const Json::Dict& routing_se
         Graph::VertexId to = stop_to_id_[stop_name].second;
         double weight = static_cast<double>(bus_wait_time_);
         Graph::Edge<double> e(Graph::EdgeType::WAIT, from, to, weight);
-        graph.AddEdge(e);
+        graph.AddEdge(move(e));
     }
 
     for (const auto& [bus_name, stops] : bus_path_) {
@@ -73,7 +74,7 @@ DataBase::DataBase(const Json::Node& base_requests, const Json::Dict& routing_se
                 weight += ((distances_[{stops[j - 1], stops[j]}] / 1000.0) / bus_velocity_) * 60;
                 span_count++;
                 Graph::Edge<double> e(Graph::EdgeType::BUS, from, to, weight, bus, span_count);
-                graph.AddEdge(e);
+                graph.AddEdge(move(e));
             }
         }
     }
@@ -118,18 +119,15 @@ vector<Json::Node> DataBase::Response(const vector<Json::Node>& requests) {
                 double length_roads = 0;
                 double length_georg = 0;
                 for (size_t i = 1; i < bus_path_[bus_name].size(); ++i) {
-                    length_georg += Distanse(stops_.at(bus_path_[bus_name][i - 1]), stops_.at(bus_path_[bus_name][i]));
-                    const auto lhs = stops_.at(bus_path_[bus_name][i - 1]);
-                    const auto rhs = stops_.at(bus_path_[bus_name][i]);
-
+                    length_georg += Distanse(
+                        stops_.at(bus_path_[bus_name][i - 1]),
+                        stops_.at(bus_path_[bus_name][i])
+                    );
                     string stop1 = bus_path_[bus_name][i - 1];
                     string stop2 = bus_path_[bus_name][i];
-                    if (distances_.count({ stop1, stop2 }) == 0) {
-                        length_roads += distances_.at({ stop2, stop1 });
-                    }
-                    else {
+                    distances_.count({ stop1, stop2 }) == 0 ?
+                        length_roads += distances_.at({ stop2, stop1 }) :
                         length_roads += distances_.at({ stop1, stop2 });
-                    }
                 }
                 double curvature = length_roads / length_georg;
                 dict = {
@@ -145,7 +143,7 @@ vector<Json::Node> DataBase::Response(const vector<Json::Node>& requests) {
         case QueryType::ROUTE: {
             string from = request_node.AsMap().at("from").AsString();
             string to = request_node.AsMap().at("to").AsString();
-            const auto route_found = router.BuildRoute(stop_to_id_[from].first, stop_to_id_[to].first);
+            const auto& route_found = router.BuildRoute(stop_to_id_[from].first, stop_to_id_[to].first);
             if (!route_found.has_value()) {
                 dict["error_message"] = Json::Node("not found"s);
             }
@@ -160,7 +158,6 @@ vector<Json::Node> DataBase::Response(const vector<Json::Node>& requests) {
                 for (size_t idx = 0; idx < edges_count; ++idx) {
                     Graph::EdgeId edge_id = router.GetRouteEdge(route_id, idx);
                     Graph::Edge e = graph.GetEdge(edge_id);
-                    string item_time = to_string(e.weight);
 
                     switch (e.type) {
                     case Graph::EdgeType::WAIT: {
