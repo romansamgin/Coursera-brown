@@ -10,8 +10,8 @@ namespace Geometry {
         Coordinates() = default;
 
         Coordinates(double latitude, double longitude) :
-            lat_(latitude* PI / 180.0),
-            lon_(longitude* PI / 180.0)
+            lat_(latitude * PI / 180.0),
+            lon_(longitude * PI / 180.0)
         {
         }
 
