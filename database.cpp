@@ -190,7 +190,7 @@ vector<Json::Node> DataBase::Response(const vector<Json::Node>& requests) {
         }
         default: break;
         }
-        result_nodes.push_back(Json::Node(dict));
+        result_nodes.emplace_back(move(Json::Node(dict)));
     }
     return result_nodes;
 }
