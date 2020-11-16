@@ -33,15 +33,10 @@ private:
 
 private:
     std::unordered_map<std::string, std::vector<std::string>> bus_path_{};
-
     std::unordered_map<std::string, bool> is_roundtrip_;
-
     std::unordered_map<std::string, Geometry::Coordinates> stops_{};
-
     std::unordered_map<std::string, std::set<std::string>> stop_buses_{};
-
     std::unordered_map<std::pair<std::string, std::string>, int, hash_pair> distances_;
-
 
     size_t bus_wait_time_;
     double bus_velocity_;
