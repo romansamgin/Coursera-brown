@@ -1,4 +1,4 @@
-#https://www.coursera.org/learn/c-plus-plus-brown
+https://www.coursera.org/learn/c-plus-plus-brown
 
 # Условие задачи
 
