@@ -50,6 +50,8 @@ private:
 public:
     DataBase() = default;
     DataBase(const Json::Node& base_requests, const Json::Dict& routing_settings);
+    DataBase(const DataBase& other) = delete;
+    DataBase& operator=(const DataBase& other) = delete;
 
     std::vector<Json::Node> Response(const std::vector<Json::Node>& requests);
 };
