@@ -17,7 +17,7 @@ namespace Geometry {
 
     };
 
-    double Distanse(const Coordinates& lhs, const Coordinates& rhs);
+    double Distanse(const Coordinates& p1, const Coordinates& p2);
 
 } //end of namespace Geometry
 
