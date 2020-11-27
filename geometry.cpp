@@ -1,10 +1,10 @@
 #include "geometry.h"
 
 
-double Geometry::Distanse(const Geometry::Coordinates& lhs, const Geometry::Coordinates& rhs) {
-    return acos(sin(lhs.lat_) * sin(rhs.lat_) +
-        cos(lhs.lat_) * cos(rhs.lat_) *
-        cos(fabs(lhs.lon_ - rhs.lon_))
+double Geometry::Distanse(const Geometry::Coordinates& p1, const Geometry::Coordinates& p2) {
+    return acos(sin(p1.lat_) * sin(p2.lat_) +
+        cos(p1.lat_) * cos(p2.lat_) *
+        cos(fabs(p1.lon_ - p2.lon_))
     ) * 6371000;
 }
 
