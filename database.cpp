@@ -68,7 +68,6 @@ DataBase::DataBase(const Json::Node& base_requests, const Json::Dict& routing_se
             Graph::VertexId from = stop_to_id_[stops[i]].second;
             double weight = 0;
             size_t span_count = 0;
-            double distance = 0;
             for (size_t j = i + 1; j < stops.size(); ++j) {
                 Graph::VertexId to = stop_to_id_[stops[j]].first;
                 weight += ((distances_[{stops[j - 1], stops[j]}] / 1000.0) / bus_velocity_) * 60;
